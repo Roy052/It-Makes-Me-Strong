@@ -12,10 +12,11 @@ public class Player : MonoBehaviour
     //Inside
     bool movable, inEnemy = false;
     Vector3 movement;
-    int moveSpeed = 5;
+    int moveSpeed = 3;
     float dealtime = 1;
     Enemy enemy;
     MainSM mainSM;
+    float attackdelay = 0;
     void Start()
     {
         health = maxhealth;
@@ -29,9 +30,10 @@ public class Player : MonoBehaviour
         movement.y = Input.GetAxisRaw("Vertical");
 
         dealtime += Time.deltaTime;
+        attackdelay += Time.deltaTime;
 
         if (movable)
-            this.transform.position += movement * Time.deltaTime;
+            this.transform.position += movement * moveSpeed * Time.deltaTime;
 
         if (health <= 0)
         {
@@ -40,10 +42,14 @@ public class Player : MonoBehaviour
         }
         if(inEnemy == true)
         {
-            if (Input.GetKeyDown(KeyCode.K))
+            //Attack
+            if (attackdelay >= 0.2 && Input.GetKeyDown(KeyCode.K))
             {
                 enemy.health -= damage;
+                attackdelay = 0;
             }
+
+            //Damaged
             if (dealtime >= 1)
             {
                 health -= enemy.damage;
@@ -68,6 +74,7 @@ public class Player : MonoBehaviour
         {
             enemy = collision.gameObject.GetComponent<Enemy>();
             inEnemy = true;
+            movable = false;
         }
         else if (collision.gameObject.tag == "FireTrap")
         {
@@ -85,6 +92,8 @@ public class Player : MonoBehaviour
         if (collision.gameObject.tag == "Enemy")
         {
             inEnemy = false;
+            enemy = null;
+            movable = true;
         }
     }
 

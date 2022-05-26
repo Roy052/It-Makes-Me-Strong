@@ -14,6 +14,6 @@ public class K : MonoBehaviour
 
     private void Update()
     {
-        this.transform.position = Player.transform.position + new Vector3(0.38f, 0.38f);
+        this.transform.position = Player.transform.position + new Vector3(0.72f, 0.72f);
     }
 }
