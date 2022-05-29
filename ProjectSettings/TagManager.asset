@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - Fall
+  - FireTrap
+  - ElecTrap
   layers:
   - Default
   - TransparentFX
@@ -42,6 +44,9 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Object
+    uniqueID: 2456029891
     locked: 0
   - name: UI
     uniqueID: 701597211

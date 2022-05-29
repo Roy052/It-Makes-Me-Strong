@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     
-    int GameState = 0; // 0 : Menu, 1 : Main, 2 : End
+    public int GameState = 0; // 0 : Menu, 1 : Main, 2 : End, 3 : Die
 
     MenuSM menuSM;
     MainSM mainSM;
@@ -38,21 +38,26 @@ public class GameManager : MonoBehaviour
     //Scene Movement
     public void MenuToMain()
     {
+        GameState = 1;
         SceneManager.LoadScene(1);
+        
     }
 
     public void MainToMenu()
     {
+        GameState = 0;
         SceneManager.LoadScene(0);
     }
 
     public void MainToEnd()
     {
+        GameState = 2;
         SceneManager.LoadScene(2);
     }
 
     public void EndToMenu()
     {
+        GameState = 0;
         SceneManager.LoadScene(0);
     }
    

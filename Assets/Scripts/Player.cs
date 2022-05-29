@@ -5,21 +5,31 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     //Public
-    public int health, maxhealth, damage;
+    public int health, maxhealth, damage, fireResist, elecResist;
     public GameObject K;
     public Foot leftFoot, rightFoot;
+    public bool canFly;
 
     //Inside
-    bool movable, inEnemy = false;
+    bool movable, inEnemy = false, inFire = false, inElec = false, inBoss = false;
     Vector3 movement;
     int moveSpeed = 3;
     float dealtime = 1;
+
+    //Triggers
     Enemy enemy;
+    Trap firetrap;
+    Trap electrap;
+
     MainSM mainSM;
     float attackdelay = 0;
     void Start()
     {
         health = maxhealth;
+        fireResist = 0;
+        elecResist = 0;
+        canFly = false;
+        
         mainSM = GameObject.Find("MainSM").GetComponent<MainSM>();
         movable = true;
     }
@@ -37,13 +47,22 @@ public class Player : MonoBehaviour
 
         if (health <= 0)
         {
-            mainSM.PlayerDead(0); //HP = 0
+            if (inEnemy == true)
+                mainSM.PlayerDead(0);
+            else if (inFire == true)
+                mainSM.PlayerDead(1);
+            else if (inElec == true)
+                mainSM.PlayerDead(3);
+            else
+                mainSM.PlayerDead(4);
+
             movable = false;
         }
+
         if(inEnemy == true)
         {
             //Attack
-            if (attackdelay >= 0.2 && Input.GetKeyDown(KeyCode.K))
+            if (attackdelay >= 0.5 && Input.GetKeyDown(KeyCode.K))
             {
                 enemy.health -= damage;
                 attackdelay = 0;
@@ -56,9 +75,28 @@ public class Player : MonoBehaviour
                 dealtime = 0;
             }
         }
-        if(leftFoot.isFalling == true && rightFoot.isFalling == true)
+
+        if(inFire == true)
         {
-            mainSM.PlayerDead(1); //Falling
+            if (dealtime >= 0.5f)
+            {
+                health -= (int) (100 * ((float) (100 - fireResist) / 100));
+                dealtime = 0;
+            }
+        }
+
+        if (inElec == true)
+        {
+            if (dealtime >= 0.2f)
+            {
+                health -= (int)(maxhealth * 1.0 / 10 * ((float)(100 - elecResist) / 100));
+                dealtime = 0;
+            }
+        }
+
+        if (leftFoot.isFalling == true && rightFoot.isFalling == true)
+        {
+            mainSM.PlayerDead(2); //Falling
         }
     }
     public void Revive()
@@ -67,38 +105,49 @@ public class Player : MonoBehaviour
         movable = true;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        K.SetActive(true);
+        
         if (collision.gameObject.tag == "Enemy")
         {
+            K.SetActive(true);
             enemy = collision.gameObject.GetComponent<Enemy>();
             inEnemy = true;
             movable = false;
         }
         else if (collision.gameObject.tag == "FireTrap")
         {
-
+            firetrap = collision.gameObject.GetComponent<Trap>();
+            firetrap.on = true;
+            inFire = true;
         }
-    }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-       
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        K.SetActive(false);
-        if (collision.gameObject.tag == "Enemy")
+        else if (collision.gameObject.tag == "ElecTrap")
         {
-            inEnemy = false;
-            enemy = null;
-            movable = true;
+            electrap = collision.gameObject.GetComponent<Trap>();
+            electrap.on = true;
+            inElec = true;
         }
     }
 
     private void OnTriggerExit2D(Collider2D collision)
     {
         
+        if (collision.gameObject.tag == "Enemy")
+        {
+            K.SetActive(false);
+            inEnemy = false;
+            enemy = null;
+            movable = true;
+        }
+        else if (collision.gameObject.tag == "FireTrap")
+        {
+            inFire = false;
+            firetrap = null;
+        }
+        else if (collision.gameObject.tag == "ElecTrap")
+        {
+            inElec = false;
+            electrap = null;
+        }
     }
 }
