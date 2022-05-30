@@ -17,7 +17,7 @@ public class Player : MonoBehaviour
     float dealtime = 1;
 
     //Triggers
-    Enemy enemy;
+    Enemy enemy, boss;
     Trap firetrap;
     Trap electrap;
 
@@ -161,6 +161,7 @@ public class Player : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Boss")
         {
+            boss = collision.GetComponent<Enemy>();
             inBoss = true;
         }
     }
@@ -192,6 +193,7 @@ public class Player : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Boss")
         {
+            
             inBoss = false;
         }
     }
