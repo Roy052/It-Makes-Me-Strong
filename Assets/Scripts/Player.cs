@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     public int health, maxhealth, damage, fireResist, elecResist;
     public GameObject K;
     public Foot leftFoot, rightFoot;
-    public bool canFly;
+    public bool canFly, isMoving, indead;
 
     //Inside
     bool movable, inEnemy = false, inFire = false, inElec = false, inBoss = false;
@@ -25,13 +25,15 @@ public class Player : MonoBehaviour
     float attackdelay = 0;
     void Start()
     {
+        //Initialize
         health = maxhealth;
         fireResist = 0;
         elecResist = 0;
         canFly = false;
-        
-        mainSM = GameObject.Find("MainSM").GetComponent<MainSM>();
+        indead = false;
         movable = true;
+
+        mainSM = GameObject.Find("MainSM").GetComponent<MainSM>();
     }
 
     void Update()
@@ -39,13 +41,16 @@ public class Player : MonoBehaviour
         movement.x = Input.GetAxisRaw("Horizontal");
         movement.y = Input.GetAxisRaw("Vertical");
 
+        if (movement.sqrMagnitude > 0.0001f) isMoving = true;
+        else isMoving = false;
+
         dealtime += Time.deltaTime;
         attackdelay += Time.deltaTime;
 
         if (movable)
             this.transform.position += movement * moveSpeed * Time.deltaTime;
 
-        if (health <= 0)
+        if (health <= 0 && indead == false)
         {
             if (inEnemy == true)
                 mainSM.PlayerDead(0);
@@ -56,6 +61,7 @@ public class Player : MonoBehaviour
             else
                 mainSM.PlayerDead(4);
 
+            indead = true;
             movable = false;
         }
 
@@ -94,7 +100,17 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (leftFoot.isFalling == true && rightFoot.isFalling == true)
+        if(inBoss == true)
+        {
+            //Attack
+            if (attackdelay >= 0.5 && Input.GetKeyDown(KeyCode.K))
+            {
+                enemy.health -= damage;
+                attackdelay = 0;
+            }
+        }
+
+        if (canFly == false && leftFoot.isFalling == true && rightFoot.isFalling == true)
         {
             mainSM.PlayerDead(2); //Falling
         }
@@ -102,6 +118,7 @@ public class Player : MonoBehaviour
     public void Revive()
     {
         health = maxhealth;
+        indead = false;
         movable = true;
     }
 
@@ -126,6 +143,25 @@ public class Player : MonoBehaviour
             electrap = collision.gameObject.GetComponent<Trap>();
             electrap.on = true;
             inElec = true;
+            moveSpeed = 1;
+        }
+        else if (collision.gameObject.tag == "Area")
+        {
+            collision.GetComponent<Area>().inArea = true;
+        }
+        else if (collision.gameObject.tag == "BossAttack")
+        {
+            health -= 1000;
+            inBoss = true;
+        }
+        else if (collision.gameObject.tag == "Door")
+        {
+            GameManager gm = GameObject.Find("GameManager").GetComponent<GameManager>();
+            gm.MainToEnd();
+        }
+        else if (collision.gameObject.tag == "Boss")
+        {
+            inBoss = true;
         }
     }
 
@@ -148,6 +184,15 @@ public class Player : MonoBehaviour
         {
             inElec = false;
             electrap = null;
+            moveSpeed = 3;
+        }
+        else if (collision.gameObject.tag == "Area")
+        {
+            collision.GetComponent<Area>().inArea = false;
+        }
+        else if (collision.gameObject.tag == "Boss")
+        {
+            inBoss = false;
         }
     }
 }

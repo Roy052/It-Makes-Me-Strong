@@ -8,6 +8,10 @@ TagManager:
   - Fall
   - FireTrap
   - ElecTrap
+  - Area
+  - Door
+  - BossAttack
+  - Boss
   layers:
   - Default
   - TransparentFX

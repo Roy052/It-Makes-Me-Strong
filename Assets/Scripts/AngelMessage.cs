@@ -22,12 +22,10 @@ public class AngelMessage : MonoBehaviour
     public void ON()
     {
         animator.SetBool("ON", true);
-        Debug.Log("ON");
     }
 
     public void OFF()
     {
         animator.SetBool("ON", false);
-        Debug.Log("OFF");
     }
 }
