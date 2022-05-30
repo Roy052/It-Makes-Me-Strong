@@ -9,12 +9,15 @@ public class Player : MonoBehaviour
     public GameObject K;
     public Foot leftFoot, rightFoot;
     public bool canFly, isMoving, indead;
+    public Sprite originalSprite, attackSprite;
 
     //Inside
     bool movable, inEnemy = false, inFire = false, inElec = false, inBoss = false;
     Vector3 movement;
     int moveSpeed = 3;
     float dealtime = 1;
+    bool moveLeft;
+    AudioSource audioSource;
 
     //Triggers
     Enemy enemy, boss;
@@ -34,6 +37,7 @@ public class Player : MonoBehaviour
         movable = true;
 
         mainSM = GameObject.Find("MainSM").GetComponent<MainSM>();
+        audioSource = this.GetComponent<AudioSource>();
     }
 
     void Update()
@@ -43,6 +47,12 @@ public class Player : MonoBehaviour
 
         if (movement.sqrMagnitude > 0.0001f) isMoving = true;
         else isMoving = false;
+
+        /*if (moveLeft == false && movement.y > 0)
+        {
+            moveLeft = true;
+            this.transform
+        }*/
 
         dealtime += Time.deltaTime;
         attackdelay += Time.deltaTime;
@@ -55,9 +65,15 @@ public class Player : MonoBehaviour
             if (inEnemy == true)
                 mainSM.PlayerDead(0);
             else if (inFire == true)
+            {
+                firetrap.on = false;
                 mainSM.PlayerDead(1);
+            }
             else if (inElec == true)
+            {
+                electrap.on = false;
                 mainSM.PlayerDead(3);
+            }
             else
                 mainSM.PlayerDead(4);
 
@@ -71,6 +87,7 @@ public class Player : MonoBehaviour
             if (attackdelay >= 0.5 && Input.GetKeyDown(KeyCode.K))
             {
                 enemy.health -= damage;
+                audioSource.Play();
                 attackdelay = 0;
             }
 
@@ -105,7 +122,8 @@ public class Player : MonoBehaviour
             //Attack
             if (attackdelay >= 0.5 && Input.GetKeyDown(KeyCode.K))
             {
-                enemy.health -= damage;
+                boss.health -= damage;
+                audioSource.Play();
                 attackdelay = 0;
             }
         }
@@ -122,9 +140,15 @@ public class Player : MonoBehaviour
         movable = true;
     }
 
+    /*IEnumerator attack()
+    {
+        this.GetComponent<SpriteRenderer>().sprite = attackSprite;
+        yield return new WaitForSeconds(0.1f);
+        this.GetComponent<SpriteRenderer>().sprite = originalSprite;
+    }*/
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        
         if (collision.gameObject.tag == "Enemy")
         {
             K.SetActive(true);
@@ -148,6 +172,7 @@ public class Player : MonoBehaviour
         else if (collision.gameObject.tag == "Area")
         {
             collision.GetComponent<Area>().inArea = true;
+            mainSM.BossEncounterON();
         }
         else if (collision.gameObject.tag == "BossAttack")
         {
@@ -161,6 +186,7 @@ public class Player : MonoBehaviour
         }
         else if (collision.gameObject.tag == "Boss")
         {
+            K.SetActive(true);
             boss = collision.GetComponent<Enemy>();
             inBoss = true;
         }
@@ -179,21 +205,24 @@ public class Player : MonoBehaviour
         else if (collision.gameObject.tag == "FireTrap")
         {
             inFire = false;
+            firetrap.on = false;
             firetrap = null;
         }
         else if (collision.gameObject.tag == "ElecTrap")
         {
             inElec = false;
+            electrap.on = false;
             electrap = null;
             moveSpeed = 3;
         }
         else if (collision.gameObject.tag == "Area")
         {
             collision.GetComponent<Area>().inArea = false;
+            mainSM.BossEncounterOFF();
         }
         else if (collision.gameObject.tag == "Boss")
         {
-            
+            K.SetActive(false);
             inBoss = false;
         }
     }

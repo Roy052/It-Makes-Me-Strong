@@ -9,6 +9,7 @@ public class MainSM : MonoBehaviour
     public AngelMessage am;
     public Camera mainCamera;
     public Arm arm;
+    public AudioClip original, boss;
 
     GameObject playerObj;
     Player player;
@@ -22,12 +23,12 @@ public class MainSM : MonoBehaviour
     Vector3 endPosition = new Vector3(98, 0, 0);
     GameManager gm;
 
-    
-
     int beforeDeath = -1;
     int beforeDeathCount = 0;
 
     int flyCount = 0;
+
+    AudioSource audioSource;
 
     //otp
     bool confidenceOtp = false;
@@ -42,6 +43,7 @@ public class MainSM : MonoBehaviour
         playerObj = GameObject.Find("Player");
         player = playerObj.GetComponent<Player>();
         gm = GameObject.Find("GameManager").GetComponent<GameManager>();
+        audioSource = this.GetComponent<AudioSource>();
 
         //Text Reset
         healthText.text = "";
@@ -65,10 +67,8 @@ public class MainSM : MonoBehaviour
 
     public void PlayerDead(int why) // 0 : Monster, 1 : Fire, 2 : Fall, 3 : Electric, 4 : Boss
     {
-        Debug.Log(why);
         gm.GameState = 3;
         bool isMoving = player.isMoving;
-        Debug.Log(isMoving);
         
         if (totalDeathCount == 0)
         {
@@ -233,5 +233,24 @@ public class MainSM : MonoBehaviour
         }
         yield return new WaitForSeconds(waitingTime);
         charText.text = "";
+    }
+
+    public int GetConfidence()
+    {
+        return confidence;
+    }
+
+    public void BossEncounterON()
+    {
+        audioSource.clip = boss;
+        audioSource.volume = 0.5f;
+        audioSource.Play();
+    }
+
+    public void BossEncounterOFF()
+    {
+        audioSource.clip = original;
+        audioSource.volume = 0.2f;
+        audioSource.Play();
     }
 }

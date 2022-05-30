@@ -5,13 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    
-    public int GameState = 0; // 0 : Menu, 1 : Main, 2 : End, 3 : Die, 4: Howtoplay, 5 : Endings
+    public int GameState = 0; // 0 : Menu, 1 : Main, 2 : End, 3 : Die, 4: Howtoplay, 5 : Endings, 6 : Boss
+    public bool bossTime = false;
+    public int confidence = 0;
 
-    MenuSM menuSM;
-    MainSM mainSM;
-    EndSM endSM;
-    bool onetime = false;
+    public MenuSM menuSM;
+    public MainSM mainSM;
+    public EndSM endSM;
+    
     private static GameManager gameManagerInstance;
     void Awake()
     {
@@ -27,12 +28,17 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
-        
+        menuSM = GameObject.Find("MenuSM").GetComponent<MenuSM>();
     }
 
     void Update()
     {
-        
+        if(GameState == 0 && menuSM == null)
+            GameObject.Find("MenuSM").GetComponent<MenuSM>();
+        else if (GameState == 1 && mainSM == null)
+            mainSM = GameObject.Find("MainSM").GetComponent<MainSM>();
+        else if(GameState == 2 && endSM == null)
+            endSM = GameObject.Find("EndSM").GetComponent<EndSM>();
     }
 
     //Scene Movement
@@ -40,7 +46,6 @@ public class GameManager : MonoBehaviour
     {
         GameState = 1;
         SceneManager.LoadScene("Main");
-        
     }
 
     public void MainToMenu()
@@ -52,6 +57,7 @@ public class GameManager : MonoBehaviour
     public void MainToEnd()
     {
         GameState = 2;
+        confidence = mainSM.GetConfidence();
         SceneManager.LoadScene("End");
     }
 
