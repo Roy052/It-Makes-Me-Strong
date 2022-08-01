@@ -1,4 +1,4 @@
-# It-Makes-Me-Strong
+# Death Makes Me Strong
 <div>
     <h2> 게임 정보 </h2>
     <img src = "https://img.itch.zone/aW1nLzkwNjQ4NTMucG5n/347x500/BM8%2FqY.png"><br>
